@@ -1,11 +1,8 @@
 import express from 'express';
+import { getPokemons } from '../controllers/pokemonsController';
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  // Вернуть покемонов из таблицы pokemons с пагинацией
-  // КАК ПРАВИЛЬНО СДЕЛАТЬ ПАГИНАЦИЮ ?
-  res.send('Pokemons');
-});
+router.get('/', getPokemons);
 
 export default router;

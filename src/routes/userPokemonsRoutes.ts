@@ -1,4 +1,5 @@
 import express from 'express';
+import { addPokemonToUser } from '../controllers/userPokemonsController';
 
 const router = express.Router();
 
@@ -14,9 +15,6 @@ router.post('/evolve', (req, res) => {
   res.send('Pokemons');
 });
 
-router.post('/add', (req, res) => {
-  // {pokemonsID: “id”, signedMessage: “0xc6dfdcffc341...”}
-  res.send('Pokemons');
-});
+router.post('/add', addPokemonToUser);
 
 export default router;
