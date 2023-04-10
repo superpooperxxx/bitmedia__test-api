@@ -1,16 +1,32 @@
 // eslint-disable-next-line no-shadow
 import { Request, Response } from 'express';
+// import UserPokemon from '../models/userPokemonModel';
+import getUserAddress from '../utils/getUserAddress';
+import { restoreMessage } from '../utils/restoreMessage';
 import UserPokemon from '../models/userPokemonModel';
 
 export const addPokemonToUser = async (req: Request, res: Response) => {
-  // Потом рзберусь после разработки
   try {
-    const newUserPokemon = await UserPokemon.create(req.body);
+    const { pokemonId, signedMessage } = req.body;
+
+    // Restored Message by action ('add' | 'evolve') and pokemonId
+    const restoredMessage = await restoreMessage(pokemonId, 'add');
+
+    // Restored user address
+    const userId = await getUserAddress(signedMessage, restoredMessage);
+
+    const pokemon = {
+      userId,
+      pokemonId: [userId, pokemonId].join('__'),
+      addedAt: new Date(),
+    };
+
+    const addedPokemon = await UserPokemon.create(pokemon);
 
     res.status(201).json({
       status: 'success',
       data: {
-        userPokemon: newUserPokemon,
+        userPokemon: addedPokemon,
       },
     });
   } catch {
