@@ -1,13 +1,12 @@
 import express from 'express';
-import { addPokemonToUser } from '../controllers/userPokemonsController';
+import {
+  addPokemonToUser,
+  getUserPokemons,
+} from '../controllers/userPokemonsController';
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  // Возвращает покемонов для определенного пользователя с пагинацией.
-  // Наверно нужно принимать userID
-  res.send('Pokemons');
-});
+router.get('/:userId', getUserPokemons);
 
 router.post('/evolve', (req, res) => {
   // ЧТО ТАКОЕ signedMessage ?
