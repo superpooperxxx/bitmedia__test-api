@@ -26,3 +26,9 @@ export const getPokemonById = async (id: string): Promise<PokemonType> => {
 
   return pokemon;
 };
+
+export const findManyById = async (ids: string[]) => {
+  const pokemons = await Pokemon.find({ id: { $in: ids } });
+
+  return pokemons;
+};

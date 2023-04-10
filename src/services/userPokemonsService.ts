@@ -1,41 +1,33 @@
 import UserPokemon from '../models/userPokemonModel';
 import { ParsedQs } from 'qs';
-import { UserPokemon as UserPokemonType } from '../types/userPokemon';
+import { Pokemon as PokemonType } from '../types/pokemon';
 import { getSkipAndLimit } from '../utils/getSkipAndLimit';
+import { findManyById } from './pokemonsService';
 
-export const getTotalAmount = async () => {
-  const totalAmount = await UserPokemon.countDocuments();
+export const getTotalAmountOfUserPokemons = async (userId: string) => {
+  const total = await UserPokemon.find({ userId });
 
-  return totalAmount;
+  return total.length;
 };
 
 export const getUserPokemonsWithPagination = async (
   userId: string,
   query: ParsedQs,
-): Promise<[UserPokemonType[], number]> => {
-  const pokemonsNum = await getTotalAmount();
+): Promise<[PokemonType[], number]> => {
+  const pokemonsNum = await getTotalAmountOfUserPokemons(userId);
 
   const { skip, limit } = getSkipAndLimit(query, pokemonsNum);
 
-  const pokemons = await UserPokemon.find({ userId }).skip(skip).limit(limit);
+  const pokemonsOfUser = await UserPokemon.find({ userId })
+    .skip(skip)
+    .limit(limit);
+
+  // eslint-disable-next-line no-console
+  const pokemondsIds = pokemonsOfUser.map(
+    (pokemon) => pokemon.pokemonId.split('__')[1],
+  );
+
+  const pokemons = await findManyById(pokemondsIds);
 
   return [pokemons, pokemonsNum];
 };
-
-// export const getPokemonsWithPagination = async (
-//   query: ParsedQs,
-// ): Promise<[PokemonType[], number]> => {
-//   const pokemonsNum = await getTotalAmount();
-
-//   const page = +query.page || 1;
-//   const limit = +query.limit || 12;
-//   const skip = (page - 1) * limit;
-
-//   if (query.page && skip >= pokemonsNum) {
-//     throw new Error('There is no such page');
-//   }
-
-//   const pokemons = await Pokemon.find().skip(skip).limit(limit);
-
-//   return [pokemons, pokemonsNum];
-// };
