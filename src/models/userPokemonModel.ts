@@ -12,6 +12,7 @@ const userPokemonSchema = new mongoose.Schema(
     },
     addedAt: {
       type: Date,
+      required: true,
     },
     evolvedAt: {
       type: Date,

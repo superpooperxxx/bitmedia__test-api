@@ -1,6 +1,7 @@
 import Pokemon from '../models/pokemonModel';
 import { Pokemon as PokemonType } from '../types/pokemon';
 import { ParsedQs } from 'qs';
+import { getSkipAndLimit } from '../utils/getSkipAndLimit';
 
 export const getTotalAmount = async () => {
   const totalAmount = await Pokemon.countDocuments();
@@ -13,13 +14,7 @@ export const getPokemonsWithPagination = async (
 ): Promise<[PokemonType[], number]> => {
   const pokemonsNum = await getTotalAmount();
 
-  const page = +query.page || 1;
-  const limit = +query.limit || 12;
-  const skip = (page - 1) * limit;
-
-  if (query.page && skip >= pokemonsNum) {
-    throw new Error('There is no such page');
-  }
+  const { skip, limit } = getSkipAndLimit(query, pokemonsNum);
 
   const pokemons = await Pokemon.find().skip(skip).limit(limit);
 

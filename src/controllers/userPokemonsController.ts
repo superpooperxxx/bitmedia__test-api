@@ -4,6 +4,31 @@ import { Request, Response } from 'express';
 import getUserAddress from '../utils/getUserAddress';
 import { restoreMessage } from '../utils/restoreMessage';
 import UserPokemon from '../models/userPokemonModel';
+import { getUserPokemonsWithPagination } from '../services/userPokemonsService';
+
+export const getUserPokemons = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const [pokemons, total] = await getUserPokemonsWithPagination(
+      userId,
+      req.query,
+    );
+
+    res.status(200).json({
+      status: 'success',
+      total,
+      results: pokemons.length,
+      data: {
+        pokemons,
+      },
+    });
+  } catch (error) {
+    res.status(404).json({
+      status: 'fail',
+      message: error.message,
+    });
+  }
+};
 
 export const addPokemonToUser = async (req: Request, res: Response) => {
   try {
