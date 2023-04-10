@@ -19,6 +19,7 @@
   "license": "ISC",
   "dependencies": {
     "@mate-academy/eslint-config": "0.0.22",
+    "@metamask/eth-sig-util": "^5.0.2",
     "@types/mongoose": "^5.11.97",
     "@typescript-eslint/parser": "^5.57.1",
     "cors": "^2.8.5",

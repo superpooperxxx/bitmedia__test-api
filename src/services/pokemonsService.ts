@@ -25,3 +25,9 @@ export const getPokemonsWithPagination = async (
 
   return [pokemons, pokemonsNum];
 };
+
+export const getPokemonById = async (id: string): Promise<PokemonType> => {
+  const pokemon = await Pokemon.findOne({ id });
+
+  return pokemon;
+};
