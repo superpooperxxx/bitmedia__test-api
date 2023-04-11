@@ -3,6 +3,7 @@ import { getPokemonById } from '../services/pokemonsService';
 export const restoreMessage = async (
   pokemonId: string,
   action: 'add' | 'evolve',
+  pokemonToId = '',
 ) => {
   const pokemon = await getPokemonById(pokemonId);
 
@@ -11,7 +12,7 @@ export const restoreMessage = async (
       return `I want add ${pokemon.name} to my list`;
 
     case 'evolve': {
-      const evolutionOfPokemon = await getPokemonById(pokemon.evolution[0]);
+      const evolutionOfPokemon = await getPokemonById(pokemonToId);
 
       return `I want evolve ${pokemon.name} to ${evolutionOfPokemon.name}`;
     }
