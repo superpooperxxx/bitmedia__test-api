@@ -61,10 +61,7 @@ export const addPokemonToUser = async (req: Request, res: Response) => {
     const userHasThisPokemon = await userHasPokemon(userId, pokemonId);
 
     if (userHasThisPokemon) {
-      res.status(400).json({
-        status: 'fail',
-        message: 'User already has this pokemon',
-      });
+      res.status(400).send({ error: 'User already has this pokemon' });
 
       return;
     }
