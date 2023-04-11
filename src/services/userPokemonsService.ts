@@ -31,3 +31,27 @@ export const getUserPokemonsWithPagination = async (
 
   return [pokemons, pokemonsNum];
 };
+
+export const findUserPokemonById = async (pokemonId: string) => {
+  const pokemon = await UserPokemon.findOne({ pokemonId });
+
+  return pokemon;
+};
+
+export const evolveUserPokemon = async (
+  pokemonId: string,
+  pokemonToId: string,
+) => {
+  const pokemon = await UserPokemon.findOneAndUpdate(
+    { pokemonId },
+    {
+      $set: {
+        pokemonId: pokemonToId,
+        evolvedAt: new Date(),
+      },
+    },
+    { new: true },
+  );
+
+  return pokemon;
+};
