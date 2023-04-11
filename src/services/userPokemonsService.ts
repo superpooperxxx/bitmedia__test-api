@@ -22,20 +22,17 @@ export const getUserPokemonsWithPagination = async (
     .skip(skip)
     .limit(limit);
 
-  // eslint-disable-next-line no-console
-  const pokemondsIds = pokemonsOfUser.map(
-    (pokemon) => pokemon.pokemonId.split('__')[1],
-  );
+  const pokemondsIds = pokemonsOfUser.map((pokemon) => pokemon.pokemonId);
 
   const pokemons = await findManyById(pokemondsIds);
 
   return [pokemons, pokemonsNum];
 };
 
-export const findUserPokemonById = async (pokemonId: string) => {
-  const pokemon = await UserPokemon.findOne({ pokemonId });
+export const userHasPokemon = async (userId: string, pokemonId: string) => {
+  const pokemon = await UserPokemon.find({ userId, pokemonId });
 
-  return pokemon;
+  return Boolean(pokemon.length);
 };
 
 export const evolveUserPokemon = async (

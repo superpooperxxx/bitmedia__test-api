@@ -1,3 +1,4 @@
+/* eslint-disable operator-linebreak */
 /* eslint-disable no-console */
 // eslint-disable-next-line no-shadow
 import { Request, Response } from 'express';
@@ -7,15 +8,25 @@ import UserPokemon from '../models/userPokemonModel';
 import {
   getUserPokemonsWithPagination,
   evolveUserPokemon,
+  userHasPokemon,
 } from '../services/userPokemonsService';
 import { getPokemonById } from '../services/pokemonsService';
+import {
+  addPokemonReqBodySchema,
+  evolvePokemonReqBodySchema,
+  paginationSchema,
+  userIdSchema,
+} from '../validators';
 
 export const getUserPokemons = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    // Validation
+    const { userId } = await userIdSchema.validateAsync(req.params);
+    const query = await paginationSchema.validateAsync(req.query);
+
     const [pokemons, total] = await getUserPokemonsWithPagination(
       userId,
-      req.query,
+      query,
     );
 
     res.status(200).json({
@@ -36,7 +47,9 @@ export const getUserPokemons = async (req: Request, res: Response) => {
 
 export const addPokemonToUser = async (req: Request, res: Response) => {
   try {
-    const { pokemonId, signedMessage } = req.body;
+    // Validation
+    const { pokemonId, signedMessage } =
+      await addPokemonReqBodySchema.validateAsync(req.body);
 
     // Restored Message by action ('add' | 'evolve') and pokemonId
     const restoredMessage = await restoreMessage(pokemonId, 'add');
@@ -44,9 +57,21 @@ export const addPokemonToUser = async (req: Request, res: Response) => {
     // Restored user address
     const userId = await getUserAddress(signedMessage, restoredMessage);
 
+    // Check if user already has this pokemon
+    const userHasThisPokemon = await userHasPokemon(userId, pokemonId);
+
+    if (userHasThisPokemon) {
+      res.status(400).json({
+        status: 'fail',
+        message: 'User already has this pokemon',
+      });
+
+      return;
+    }
+
     const pokemon = {
       userId,
-      pokemonId: [userId, pokemonId].join('__'),
+      pokemonId,
       addedAt: new Date(),
     };
 
@@ -68,7 +93,8 @@ export const addPokemonToUser = async (req: Request, res: Response) => {
 
 export const evolvePokemon = async (req: Request, res: Response) => {
   try {
-    const { userPokemonsIDFrom, userPokemonsIDto, signedMessage } = req.body;
+    const { userPokemonsIDFrom, userPokemonsIDto, signedMessage } =
+      await evolvePokemonReqBodySchema.validateAsync(req.body);
 
     // Check if userPokemonsIDto is the evolution of userPokemonsIDFrom
     const pokemonFrom = await getPokemonById(userPokemonsIDFrom);
@@ -92,8 +118,8 @@ export const evolvePokemon = async (req: Request, res: Response) => {
     // Find and evolve pokemon
     if (userId) {
       const newUserPokemon = await evolveUserPokemon(
-        `${userId}__${userPokemonsIDFrom}`,
-        `${userId}__${userPokemonsIDto}`,
+        userPokemonsIDFrom,
+        userPokemonsIDto,
       );
 
       if (!newUserPokemon) {
@@ -101,6 +127,8 @@ export const evolvePokemon = async (req: Request, res: Response) => {
           status: 'fail',
           message: "The user doesn't own this pokemon",
         });
+
+        return;
       }
 
       res.status(200).json({
