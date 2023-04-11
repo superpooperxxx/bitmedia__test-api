@@ -1,7 +1,10 @@
 // eslint-disable-next-line no-shadow
 import { Request, Response } from 'express';
-import { getPokemonsWithPagination } from '../services/pokemonsService';
-import { paginationSchema } from '../validators';
+import {
+  getPokemonById,
+  getPokemonsWithPagination,
+} from '../services/pokemonsService';
+import { paginationSchema, pokemonRequestSchema } from '../validators';
 
 export const getPokemons = async (req: Request, res: Response) => {
   try {
@@ -21,6 +24,26 @@ export const getPokemons = async (req: Request, res: Response) => {
     res.status(404).json({
       status: 'fail',
       message: error.message,
+    });
+  }
+};
+
+export const getPokemon = async (req: Request, res: Response) => {
+  try {
+    const { pokemonId } = await pokemonRequestSchema.validateAsync(req.params);
+
+    const pokemon = await getPokemonById(pokemonId);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        pokemon,
+      },
+    });
+  } catch {
+    res.status(404).json({
+      status: 'fail',
+      message: 'pokemons was not found',
     });
   }
 };

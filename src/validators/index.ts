@@ -31,3 +31,9 @@ export const userIdSchema = Joi.object({
     .regex(/^0x[0-9a-fA-F]{40}$/)
     .required(),
 });
+
+export const pokemonRequestSchema = Joi.object({
+  pokemonId: Joi.string()
+    .regex(/^[1-9]\d*$/)
+    .required(),
+});
